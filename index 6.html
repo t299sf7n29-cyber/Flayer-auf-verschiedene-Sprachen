@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Видео по языкам</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 30px 10px;
+      background: linear-gradient(to bottom, #f4f4f4, #e0e0e0);
+    }
+    h1 { margin-bottom: 24px; color:#333; font-size: 1.6rem; }
+    .button {
+      display:inline-block; padding:12px 22px; margin:10px; font-size:16px;
+      cursor:pointer; background:#007BFF; color:#fff; border:none; border-radius:40px;
+      text-decoration:none;
+    }
+    #video-container { margin-top:30px; opacity:0; transition:opacity .4s ease-in-out; }
+    .iframe-wrap {
+      position:relative; width:100%; max-width:900px; margin:0 auto;
+      padding-bottom:56.25%; /* 16:9 */
+      height:0;
+    }
+    .iframe-wrap iframe {
+      position:absolute; top:0; left:0; width:100%; height:100%; border:0;
+      border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.2);
+    }
+    .fallback {
+      margin-top:10px; font-size:0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Выберите язык</h1>
+
+  <div id="language-buttons">
+    <button class="button" onclick="showVideo('de')">Deutsch 🇩🇪</button>
+    <button class="button" onclick="showVideo('tr')">TÜRKÇE 🇹🇷</button>
+    <button class="button" onclick="showVideo('ar')">العربية 🇸🇦</button>
+  </div>
+
+  <div id="video-container" aria-live="polite"></div>
+
+  <script>
+    // Оригинальные (внешние) ссылки — будут открываться в новой вкладке как запасной вариант.
+    const fallbackLinks = {
+      de: 'https://app.heygen.com/videos/015f4180b3654fbe8a99607f11c21fd6',
+      tr: 'https://www.youtube.com/watch?v=rM9LG9QxQOo',
+      ar: 'https://www.youtube.com/watch?v=ZSRxk5hdvpk'
+    };
+
+    // Embed URLs (YouTube должны быть в embed-формате)
+    const embedUrls = {
+      de: 'https://www.youtube.com/embed/aLDxfqSMQ78?rel=0', // если есть id для de — используй его
+      tr: 'https://www.youtube.com/embed/rM9LG9QxQOo?rel=0',
+      ar: 'https://www.youtube.com/embed/ZSRxk5hdvpk?rel=0'
+    };
+
+    function showVideo(lang) {
+      const container = document.getElementById('video-container');
+      container.style.opacity = 0;
+      // задержка для плавного эффекта
+      setTimeout(() => {
+        // Если для данного языка embed URL неизвестен (или пуст), не пытаться встраивать
+        const url = embedUrls[lang] || '';
+        const fallback = fallbackLinks[lang];
+
+        // Построим HTML с iframe + запасной ссылкой
+        let html = '';
+        if (url) {
+          html += `
+            <div class="iframe-wrap" role="region" aria-label="Видео">
+              <iframe src="${url}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+            </div>
+          `;
+        } else {
+          html += `<p>Встраиваемое видео недоступно.</p>`;
+        }
+
+        // Всегда показываем резервную ссылку — полезно если сервер блокирует встраивание
+        html += `
+          <div class="fallback">
+            <p>Если плеер не отображается — <a href="${fallback}" target="_blank" rel="noopener">откройте видео в новой вкладке</a>.</p>
+          </div>
+        `;
+
+        container.innerHTML = html;
+        container.style.opacity = 1;
+        container.scrollIntoView({behavior: 'smooth'});
+      }, 150);
+    }
+  </script>
+</body>
+</html>
